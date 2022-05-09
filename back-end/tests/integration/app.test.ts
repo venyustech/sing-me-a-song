@@ -87,7 +87,7 @@ describe("Recommendations tests", () => {
   describe("GET:  /recommendations/random", () => {
     beforeEach(() => {return truncateRecommendationDb()});
 
-    it("should return the correct object", async () => {
+    it("should return the correct object by percentage", async () => {
       await recommendationFactory.createRecommendations();
 
       const id = 1;
@@ -102,11 +102,46 @@ describe("Recommendations tests", () => {
 
       const response = await supertest(app).get("/recommendations/random");
 
-      console.log("body**************: ", response.body)
+      // console.log("body**************: ", response.body)
       ////////********** to fix *************/////////
 
       expect(response.body).toBeInstanceOf(Object);
       expect(response.body.id).toEqual(id);
+    });
+  });
+
+  describe("GET: /recommendations/top/:amount", () => {
+    beforeEach(() => {return truncateRecommendationDb()});
+
+
+    it("should return 10 recommendations in order by score", async () => {
+      await recommendationFactory.createRecommendations();
+
+      const amount = 10;
+
+      await prisma.recommendation.update({
+        where: {
+          id: 1,
+        },
+        data: {
+          score: 5,
+        },
+      });
+
+      await prisma.recommendation.update({
+        where: {
+          id: 2,
+        },
+        data: {
+          score: 10,
+        },
+      });
+
+      const response = await supertest(app).get(`/recommendations/top/${amount}`);
+
+      expect(response.body.length).toEqual(amount);
+      expect(response.body[0].id).toEqual(2);
+      expect(response.body[1].id).toEqual(1);
     });
   });
 
