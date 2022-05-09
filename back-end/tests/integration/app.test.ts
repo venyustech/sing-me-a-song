@@ -2,14 +2,15 @@ import app from "../../src/app.js";
 import supertest from "supertest";
 import { prisma } from "../../src/database.js";
 import bodysFactory from "../factory/bodysFactory.js";
+import recommendationFactory from "../factory/recommendationFactory.js";
 
 describe("Recommendations tests", () => {
-  beforeEach(truncateRecommendationDb())
+  // afterAll(() => {return truncateRecommendationDb()});
 
   describe("POST: /recommendation", () => {
+    
     it("should return status 201, given a valid body", async () => {
         const body = bodysFactory.recommendation();
-        console.log(body);
 
         const response = await supertest(app).post("/recommendations").send(body);
         const createdRecommendation = await prisma.recommendation.findUnique({
@@ -22,9 +23,10 @@ describe("Recommendations tests", () => {
         expect(createdRecommendation).not.toBeNull();
     });
   })
+
   describe("POST: /recommendations/:id/upvote and /recommendations/:id/downvote", () => {
 
-    it.todo("should score+ the song, given a valid ID and return status 200", async ()=>{
+    it("should score+ the song, given a valid ID and return status 200", async ()=>{
       const id = 1;
 
       const response = await supertest(app).post(`/recommendations/${id}/upvote`);
@@ -39,7 +41,7 @@ describe("Recommendations tests", () => {
       expect(findedRecommendation.score).toEqual(1);
     });
 
-    it.todo("should score- the song, given a valid ID and return status 200", async () => {
+    it("should score- the song, given a valid ID and return status 200", async () => {
       const id = 1;
 
       const response = await supertest(app).post(`/recommendations/${id}/downvote`);
@@ -52,15 +54,25 @@ describe("Recommendations tests", () => {
 
       expect(response.status).toEqual(200);
       expect(findedRecommendation.score).toEqual(0);
-  
     })
+  });
+
+   describe("GET: /recommendations by last 10 songs ", () => {
+    beforeEach(() => {return truncateRecommendationDb()});
+
+    it("should return last 10 songs", async () => {
+      recommendationFactory.createRecommendations();
+ 
+      const response = await supertest(app).get("/recommendations");
+
+      expect(response.body[0].id).toEqual(20);
+      expect(response.body).toHaveLength(10);
+    });
   });
 
 });
 
 
-function truncateRecommendationDb(){
-    return async () => {
-        await prisma.$executeRaw`TRUNCATE TABLE recommendations`;
-    };
+async function truncateRecommendationDb(){
+    return await prisma.$executeRaw`TRUNCATE TABLE recommendations RESTART IDENTITY`;
 }
