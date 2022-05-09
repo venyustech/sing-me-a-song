@@ -23,9 +23,39 @@ describe("Recommendations tests", () => {
     });
   })
   describe("POST: /recommendations/:id/upvote and /recommendations/:id/downvote", () => {
-    it.todo("should score+ the song, given a valid ID and return status 200")
-    it.todo("should score- the song, given a valid ID and return status 200")
-  })
+
+    it.todo("should score+ the song, given a valid ID and return status 200", async ()=>{
+      const id = 1;
+
+      const response = await supertest(app).post(`/recommendations/${id}/upvote`);
+
+      const findedRecommendation = await prisma.recommendation.findUnique({
+        where: {
+          id: id,
+        },
+      });
+
+      expect(response.status).toEqual(200);
+      expect(findedRecommendation.score).toEqual(1);
+    });
+
+    it.todo("should score- the song, given a valid ID and return status 200", async () => {
+      const id = 1;
+
+      const response = await supertest(app).post(`/recommendations/${id}/downvote`);
+
+      const findedRecommendation = await prisma.recommendation.findUnique({
+        where: {
+          id: id,
+        },
+      });
+
+      expect(response.status).toEqual(200);
+      expect(findedRecommendation.score).toEqual(0);
+  
+    })
+  });
+
 });
 
 
