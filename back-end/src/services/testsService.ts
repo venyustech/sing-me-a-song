@@ -1,4 +1,4 @@
-import testsRepository from "../repositories/testsRepository";
+import testsRepository from "../repositories/testsRepository.js";
 
 async function resetDbTests() {
   await testsRepository.deleteAllDb();

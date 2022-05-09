@@ -1,9 +1,8 @@
 import { Response, Request } from "express";
-// import testingService from "../services/testingService.js";
+import testsService from "../services/testsService.js";
 
 async function resetDbTests(req: Request, res: Response) {
-//   await testingService.resetDbTests();
-
+  await testsService.resetDbTests();
   res.sendStatus(200);
 }
 
