@@ -70,7 +70,6 @@ describe("/recomendations unit tests:", () => {
             try {
                 await recommendationService.insert(recommendation)
             } catch (error) {
-                    console.log("blabla ",error.message)
                     expect(error.message).toEqual("Recommendations names must be unique");
             }
 
