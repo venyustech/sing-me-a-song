@@ -65,6 +65,7 @@ describe("Recommendations tests", () => {
  
       const response = await supertest(app).get("/recommendations");
 
+
       expect(response.body[0].id).toEqual(20);
       expect(response.body).toHaveLength(10);
     });
@@ -88,25 +89,20 @@ describe("Recommendations tests", () => {
     beforeEach(() => {return truncateRecommendationDb()});
 
     it("should return the correct object by percentage", async () => {
-      await recommendationFactory.createRecommendations();
+      await recommendationFactory.createRecommendations(); //20 recomendaçoes
 
-      const id = 1;
-      await prisma.recommendation.update({
-        where: {
-          id: 1,
-        },
-        data: {
-          score: 56,
-        },
-      });
+      const id = 1, score = 56
+      await updateRecommendationScoreById(id,score);
 
-      const response = await supertest(app).get("/recommendations/random");
+      let percent = 0;
+      for (let i = 0; i < 7; i++) {
+        const response = await supertest(app).get("/recommendations/random");
+        
+        if(response.body.id === 1)
+          percent++
+      }
 
-      // console.log("body**************: ", response.body)
-      ////////********** to fix *************/////////
-
-      expect(response.body).toBeInstanceOf(Object);
-      expect(response.body.id).toEqual(id);
+      expect(percent).toBeCloseTo(7, 2)
     });
   });
 
@@ -117,26 +113,11 @@ describe("Recommendations tests", () => {
     it("should return 10 recommendations in order by score", async () => {
       await recommendationFactory.createRecommendations();
 
+      const id1 = 1, score1=5, id2 = 2, score2=10;
+      await updateRecommendationScoreById(id1,score1);
+      await updateRecommendationScoreById(id2,score2);
+      
       const amount = 10;
-
-      await prisma.recommendation.update({
-        where: {
-          id: 1,
-        },
-        data: {
-          score: 5,
-        },
-      });
-
-      await prisma.recommendation.update({
-        where: {
-          id: 2,
-        },
-        data: {
-          score: 10,
-        },
-      });
-
       const response = await supertest(app).get(`/recommendations/top/${amount}`);
 
       expect(response.body.length).toEqual(amount);
@@ -147,6 +128,17 @@ describe("Recommendations tests", () => {
 
 });
 
+
+async function updateRecommendationScoreById(id: number, score:number) {
+  await prisma.recommendation.update({
+    where: {
+      id: id
+    },
+    data: {
+      score: score
+    }
+  });
+}
 
 async function truncateRecommendationDb(){
     return await prisma.$executeRaw`TRUNCATE TABLE recommendations RESTART IDENTITY`;
