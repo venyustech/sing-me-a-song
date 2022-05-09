@@ -2,11 +2,11 @@ import { prisma } from "../../src/database.js";
 import { CreateRecommendationData } from "../../src/services/recommendationsService.js";
 import bodysFactory from "./bodysFactory.js";
 
-async function createRecommendation(recommendation: CreateRecommendationData) {
+async function createRecommendation() {
+  const body = bodysFactory.recommendation();
+  
   await prisma.recommendation.create({
-    data: {
-      ...recommendation,
-    },
+    data: body,
   });
 }
 async function createRecommendations() {

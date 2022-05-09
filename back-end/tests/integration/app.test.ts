@@ -70,6 +70,20 @@ describe("Recommendations tests", () => {
     });
   });
 
+  describe("GET: /recommendations/:id", () => {
+    beforeEach(() => {return truncateRecommendationDb()});
+
+    it("should return the correct object", async () => {
+      await recommendationFactory.createRecommendation();
+      
+      const id = 1;
+      const result = await supertest(app).get(`/recommendations/${id}`);
+
+      expect(result.body).toBeInstanceOf(Object);
+      expect(result.body.id).toEqual(id);
+    });
+  });
+
 });
 
 
