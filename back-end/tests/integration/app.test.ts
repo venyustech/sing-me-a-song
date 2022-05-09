@@ -5,7 +5,7 @@ import bodysFactory from "../factory/bodysFactory.js";
 import recommendationFactory from "../factory/recommendationFactory.js";
 
 describe("Recommendations tests", () => {
-  // afterAll(() => {return truncateRecommendationDb()});
+  afterAll(() => {return truncateRecommendationDb()});
 
   describe("POST: /recommendation", () => {
     
@@ -81,6 +81,32 @@ describe("Recommendations tests", () => {
 
       expect(result.body).toBeInstanceOf(Object);
       expect(result.body.id).toEqual(id);
+    });
+  });
+
+  describe("GET:  /recommendations/random", () => {
+    beforeEach(() => {return truncateRecommendationDb()});
+
+    it("should return the correct object", async () => {
+      await recommendationFactory.createRecommendations();
+
+      const id = 1;
+      await prisma.recommendation.update({
+        where: {
+          id: 1,
+        },
+        data: {
+          score: 56,
+        },
+      });
+
+      const response = await supertest(app).get("/recommendations/random");
+
+      console.log("body**************: ", response.body)
+      ////////********** to fix *************/////////
+
+      expect(response.body).toBeInstanceOf(Object);
+      expect(response.body.id).toEqual(id);
     });
   });
 
