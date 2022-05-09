@@ -95,14 +95,14 @@ describe("Recommendations tests", () => {
       await updateRecommendationScoreById(id,score);
 
       let percent = 0;
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 100; i++) {
         const response = await supertest(app).get("/recommendations/random");
         
         if(response.body.id === 1)
           percent++
       }
 
-      expect(percent).toBeCloseTo(7, 2)
+      expect(percent).toBeGreaterThanOrEqual(65)
     });
   });
 
